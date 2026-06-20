@@ -27,25 +27,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdbool.h>
 #include "stm32f4xx_hal.h"
-
-/* Exported peripheral handles ----------------------------------------------*/
-extern ADC_HandleTypeDef hadc1;
-extern CAN_HandleTypeDef hcan1;
-extern CAN_HandleTypeDef hcan2;
-extern DAC_HandleTypeDef hdac;
-extern I2C_HandleTypeDef hi2c1;
-extern I2C_HandleTypeDef hi2c3;
-extern SPI_HandleTypeDef hspi2;
-extern SPI_HandleTypeDef hspi3;
-extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim4;
-extern UART_HandleTypeDef huart1;
-extern USART_HandleTypeDef husart3;
-extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
