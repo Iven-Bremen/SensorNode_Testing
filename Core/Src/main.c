@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Test/TMain.h"
+#include "stm32f4xx_hal.h"
 
 /* USER CODE END Includes */
 
@@ -80,13 +81,43 @@ static void MX_I2C3_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_TIM1_Init(void);
-static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART3_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
+void RGB_SetColor(int green, int red, int blue ,int brightness)
+{
+    // Hier kannst du die Helligkeit global für diese Funktion anpassen (0 bis 100)
+    // --- WEISSABGLEICH (COLOR BALANCE) ---
+    // Wir berechnen die farbkorrigierten Basiswerte
+  //  int base_red = red;
+    int base_green = (green * 10) / 100;
+    int base_blue = (blue * 20) / 100;
+
+    // Helligkeitsanpassung auf die Basiswerte anwenden
+    //int corrected_red = (base_red * brightness) / 100;
+    int corrected_green = (base_green * brightness) / 100;
+    int corrected_blue = (base_blue * brightness) / 100;
+
+    // 1. Hole das eingestellte Maximum für jeden Timer
+    //uint32_t max_red = __HAL_TIM_GET_AUTORELOAD(&htim2);
+    uint32_t max_green = __HAL_TIM_GET_AUTORELOAD(&htim3);
+    uint32_t max_blue = __HAL_TIM_GET_AUTORELOAD(&htim1);
+
+    // 2. Skaliere die Werte auf das PWM-Maximum
+   // uint32_t pwm_red = (uint32_t)(((uint64_t)corrected_red * max_red) / 255);
+    uint32_t pwm_green = (uint32_t)(((uint64_t)corrected_green * max_green) / 255);
+    uint32_t pwm_blue = (uint32_t)(((uint64_t)corrected_blue * max_blue) / 255);
+
+    // 3. Sende die Werte an die Timer
+    //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, pwm_red);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, pwm_green);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, pwm_blue);
+}
+
 
 /* USER CODE END PFP */
 
@@ -133,25 +164,70 @@ int main(void)
   MX_SPI2_Init();
   MX_SPI3_Init();
   MX_TIM1_Init();
-  MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_USART1_UART_Init();
   MX_USART3_Init();
   MX_USB_OTG_FS_PCD_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+ /* USER CODE BEGIN 2 */
+HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3); // Blau
+HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);    // Rot
+HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);    // Grün
 
+// Alle am Anfang ausschalten
+__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 51000);
+__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 51000);
+__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 51000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* Aufruf der Hauptfunktion des Programms TMain */
-    
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 0);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);  
+
+    HAL_Delay(1000);
+
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 51000);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);  
+   
+     HAL_Delay(1000);
+
+         /* USER CODE BEGIN 3 */
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 0);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);  
+
+    HAL_Delay(1000);
+
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 0);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 51000);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);  
+   
+     HAL_Delay(1000);
+
+         /* USER CODE BEGIN 3 */
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 0);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);  
+
+    HAL_Delay(1000);
+
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 0);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 51000 );  
+   
+     HAL_Delay(1000);
+
+
   }
   /* USER CODE END 3 */
 }
@@ -542,7 +618,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 0;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 65535;
+  htim1.Init.Period = 51000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -560,7 +636,7 @@ static void MX_TIM1_Init(void)
   sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
   sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
   sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
@@ -606,7 +682,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4294967295;
+  htim2.Init.Period = 51000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
@@ -622,7 +698,7 @@ static void MX_TIM2_Init(void)
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
@@ -655,7 +731,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = 51000;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
@@ -671,7 +747,7 @@ static void MX_TIM3_Init(void)
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();

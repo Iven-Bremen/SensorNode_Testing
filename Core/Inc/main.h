@@ -123,8 +123,6 @@ void Error_Handler(void);
 #define LS4_GPIO_Port GPIOE
 #define ROT_Pin GPIO_PIN_15
 #define ROT_GPIO_Port GPIOE
-#define RGB_R_Pin GPIO_PIN_11
-#define RGB_R_GPIO_Port GPIOB
 #define EX2GP7_Pin GPIO_PIN_11
 #define EX2GP7_GPIO_Port GPIOD
 #define EX2GP6_Pin GPIO_PIN_12
